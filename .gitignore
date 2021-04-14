@@ -1,0 +1,43 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+.vs
+x64
+Debug
+Release
+opengl1/Debug
+opengl1/x64
+opengl1/Release
+opengl1/opengl1.vcxproj
+opengl1/opengl1.vcxproj.filters
+opengl1/opengl1.vcxproj.user
