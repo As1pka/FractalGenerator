@@ -2,8 +2,11 @@
 #include <GLFW/glfw3.h>
 
 #include "shader_s.h"
+#include "rgb_hsv_converter.h"
 
 #include <iostream>
+#include <complex>
+#include <vector>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -75,11 +78,45 @@ int main()
     // »зменение других значений VAO требует вызова функции glBindVertexArray() в любом случае, поэтому мы обычно не снимаем прив€зку VAO (или VBO), когда это непосредственно не требуетс€
     // glBindVertexArray(0);
 
-    float vertices[] = {
-        -0.5f, -0.5f, 0.0f, // лева€ вершина
-         0.5f, -0.5f, 0.0f, // права€ вершина
-         0.0f,  0.5f, 0.0f  // верхн€€ вершина   
-    };
+    //float vertices[] = {
+    //    -0.5f, -0.5f, 0.0f, // лева€ вершина
+    //     0.5f, -0.5f, 0.0f, // права€ вершина
+    //     0.0f,  0.5f, 0.0f  // верхн€€ вершина   
+    //};
+    std::vector<float> vertices;
+    for (int x = 0; x < SCR_HEIGHT; x++)
+    {
+        
+        for (int y = 0; y < SCR_WIDTH; y++)
+        {
+            bool isColorSet = false;
+            vertices.push_back(float(x));
+            vertices.push_back(float(y));
+            vertices.push_back(0.f);
+            std::complex<float> c0(x, y);
+            std::complex<float> c(0, 0);
+            for (int i = 0; i < 1000; i++)
+            {
+                if (std::abs(c) > 2)
+                {
+                    //vertices.push_back(float(i));
+                    rgb out_color = rgb_conv(i);
+                    vertices.push_back(float(out_color.r));
+                    vertices.push_back(float(out_color.g));
+                    vertices.push_back(float(out_color.b));
+                    isColorSet = true;
+                }
+                c = c * c + c0;
+            }
+            if (!isColorSet)
+            {
+                vertices.push_back(0.f);
+                vertices.push_back(0.f);
+                vertices.push_back(0.f);
+            }
+        }
+    }
+    
 
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
@@ -89,10 +126,14 @@ int main()
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    //glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices.front(), GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)(3*sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     // ќбратите внимание, что данное действие разрешено, вызов glVertexAttribPointer() зарегистрировал VBO как прив€занный вершинный буферный объект дл€ вершинного атрибута, так что после этого мы можем спокойно выполнить отв€зку
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -113,8 +154,9 @@ int main()
 
         // –ендеринг треугольника
         ourShader.use();
-        /*glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);*/
+        glBindVertexArray(VAO);
+        //glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawArrays(GL_POINTS, 0, 3);
 
         // glfw: обмен содержимым front- и back- буферов. ќтслеживание событий ввода\вывода (была ли нажата/отпущена кнопка, перемещен курсор мыши и т.п.)
         glfwSwapBuffers(window);
