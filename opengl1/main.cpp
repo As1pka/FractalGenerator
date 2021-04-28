@@ -46,7 +46,7 @@ int main()
     }
 
     // Компилирование нашей шейдерной программы
-    Shader ourShader("../shader.vs", "../shader.fs");  // путь к файлам шейдеров
+    Shader ourShader("shader.vs", "shader.fs");  // путь к файлам шейдеров
 
     // Указание вершин (и буфера(ов)) и настройка вершинных атрибутов
     //float vertices[] = {
