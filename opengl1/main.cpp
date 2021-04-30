@@ -12,7 +12,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
 // Константы
-const unsigned int SCR_WIDTH = 800;
+const unsigned int SCR_WIDTH = 600;
 const unsigned int SCR_HEIGHT = 600;
 
 int main()
@@ -139,11 +139,12 @@ int main()
     {
         //float new_x = (x - (0.75 * SCR_WIDTH)) / (SCR_WIDTH / 4);
         for (int y = 0; y < SCR_HEIGHT; y++)
+        //for (int y = 0; y < 1; y++)
         //for (int y = SCR_HEIGHT/2.; y < SCR_HEIGHT/2.+100; y++)
         {
             bool isColorSet = false;
-            vertices.push_back(float(-1.0f + float(x)/((float)SCR_WIDTH)/2.));
-            vertices.push_back(float(1.0f - float(y) / ((float)SCR_HEIGHT) / 2.));
+            vertices.push_back(float(-1.0f + 2.f*float(x)/((float)SCR_WIDTH)));
+            vertices.push_back(float(1.0f - 2.f * float(y) / ((float)SCR_HEIGHT)));
             vertices.push_back(0.f);
             /*float wdt = float(SCR_WIDTH);
             float wdt2 = (float)SCR_WIDTH;
