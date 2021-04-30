@@ -105,7 +105,7 @@ rgb hsv2rgb(hsv in)
     return out;
 }
 
-rgb rgb_conv(int i)
+rgb rgb_conv(float i)
 {
     hsv color = { i / 255.0, 1.0, 0.5 };
     rgb correct_color = hsv2rgb(color);

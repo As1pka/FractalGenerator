@@ -18,4 +18,4 @@ static rgb   hsv2rgb(hsv in);
 
 hsv rgb2hsv(rgb in);
 rgb hsv2rgb(hsv in);
-rgb rgb_conv(int i);
+rgb rgb_conv(float i);
