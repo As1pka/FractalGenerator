@@ -77,67 +77,10 @@ int main()
     vertices.push_back(0.0f);
     vertices.push_back(1.0f);*/
 
-    //const int tmp_size = (int)SCR_HEIGHT * (int)SCR_WIDTH;//(int)SCR_HEIGHT * (int)SCR_WIDTH * 6;
-    //float vertices[tmp_size] = {};
-    //int j = 0;
-    //for (int x = 0; x < SCR_WIDTH; x++)
-    //{
-    //    //float new_x = (x - (0.75 * SCR_WIDTH)) / (SCR_WIDTH / 4);
-    //    //for (int y = SCR_HEIGHT/2.; y < SCR_HEIGHT/2.+100; y++)
-    //    for (int y = 0; y < SCR_HEIGHT; y++)
-    //    {
-    //        bool isColorSet = false;
-    //        vertices[j++] = (float(-1.0f + float(x) / ((float)SCR_WIDTH) / 2.));
-    //        vertices[j++] = (float(1.0f - float(y) / ((float)SCR_HEIGHT) / 2.));
-    //        vertices[j++] = 0.0f;
-    //        /*vertices.push_back(float(-1.0f + float(x)/((float)SCR_WIDTH)/2.));
-    //        vertices.push_back(float(1.0f - float(y) / ((float)SCR_HEIGHT) / 2.));
-    //        vertices.push_back(0.f);*/
-    //        /*float wdt = float(SCR_WIDTH);
-    //        float wdt2 = (float)SCR_WIDTH;
-    //        float a = (float)x - (0.75 * float(SCR_WIDTH));
-    //        float b = (float)SCR_WIDTH / 4.;
-    //        float new_x = (float)x - (0.75 * float(SCR_WIDTH)) / ((float)SCR_WIDTH / 4.);*/
-
-    //        //std::complex<float> c0(float((float)x - (0.75 * float(SCR_WIDTH))) / ((float)SCR_WIDTH / 4.), float((float)y - ((float)SCR_HEIGHT / 4.)) / ((float)SCR_HEIGHT / 4.));
-    //        //std::complex<float> c(0);
-    //        //for (int i = 1; i < 1000; i++)
-    //        //{
-    //        //    //float new_y = (y - (SCR_HEIGHT / 4)) / (SCR_HEIGHT / 4);
-    //        //    if (std::abs(c) > 2)
-    //        //    {
-    //        //        //vertices.push_back(float(i));
-    //        //        rgb out_color = rgb_conv(float(i));
-    //        //        vertices.push_back(float(out_color.r));
-    //        //        vertices.push_back(float(out_color.g));
-    //        //        vertices.push_back(float(out_color.b));
-    //        //        /*std::cout << i << '\n';
-    //        //        std::cout << float(out_color.r) << ' ' << float(out_color.g) << ' ' << float(out_color.b) << '\n';*/
-    //        //        /*vertices.push_back(float(255));
-    //        //        vertices.push_back(float(0));
-    //        //        vertices.push_back(float(0));*/
-    //        //        isColorSet = true;
-    //        //        break;
-    //        //    }
-    //        //    c = c * c + c0;
-    //        //}
-    //        if (!isColorSet)
-    //        {
-    //            vertices[j++] = (255.f);
-    //            vertices[j++] = (0.f);
-    //            vertices[j++] = (0.f);
-    //            /*vertices.push_back(255.f);
-    //            vertices.push_back(0.f);
-    //            vertices.push_back(0.f);*/
-    //        }
-    //    }
-    //}
-
     std::vector<float> vertices;
     for (int x = 0; x < SCR_WIDTH; x++)
     //for (int x = SCR_WIDTH/2.; x < SCR_WIDTH/2.+30; x++)
     {
-        //float new_x = (x - (0.75 * SCR_WIDTH)) / (SCR_WIDTH / 4);
         for (int y = 0; y < SCR_HEIGHT; y++)
         //for (int y = 0; y < 1; y++)
         //for (int y = SCR_HEIGHT/2.; y < SCR_HEIGHT/2.+100; y++)
@@ -146,11 +89,6 @@ int main()
             vertices.push_back(float(-1.0f + 2.f*float(x)/((float)SCR_WIDTH)));
             vertices.push_back(float(1.0f - 2.f * float(y) / ((float)SCR_HEIGHT)));
             vertices.push_back(0.f);
-            /*float wdt = float(SCR_WIDTH);
-            float wdt2 = (float)SCR_WIDTH;
-            float a = (float)x - (0.75 * float(SCR_WIDTH));
-            float b = (float)SCR_WIDTH / 4.;
-            float new_x = (float)x - (0.75 * float(SCR_WIDTH)) / ((float)SCR_WIDTH / 4.);*/
 
             std::complex<float> c0(float((float)x - (0.75 * float(SCR_WIDTH))) / ((float)SCR_WIDTH / 4.), float((float)y - ((float)SCR_HEIGHT / 4.)) / ((float)SCR_HEIGHT / 4.));
             std::complex<float> c(0);
@@ -164,11 +102,6 @@ int main()
                     vertices.push_back(float(out_color.r));
                     vertices.push_back(float(out_color.g));
                     vertices.push_back(float(out_color.b));
-                    /*std::cout << i << '\n';
-                    std::cout << float(out_color.r) << ' ' << float(out_color.g) << ' ' << float(out_color.b) << '\n';*/
-                    /*vertices.push_back(float(255));
-                    vertices.push_back(float(0));
-                    vertices.push_back(float(0));*/
                     isColorSet = true;
                     break;
                 }
@@ -193,17 +126,6 @@ int main()
         std::cout << vertices[i++] << '\n';
     }*/
     std::cout << vertices.size() << '\n';
-    //std::cout << vertices.back();
-    /*for (int i = 0; i < sizeof(vertices);)
-    {
-        std::cout << vertices[i++] << ' ';
-        std::cout << vertices[i++] << ' ';
-        std::cout << vertices[i++] << ' ';
-        std::cout << vertices[i++] << ' ';
-        std::cout << vertices[i++] << ' ';
-        std::cout << vertices[i++] << '\n';
-    }
-    std::cout << sizeof(vertices) << '\n';*/
 
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
