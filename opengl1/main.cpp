@@ -2,17 +2,13 @@
 #include <GLFW/glfw3.h>
 
 #include "shader_s.h"
-#include "rgb_hsv_converter.h"
-
-#include <iostream>
-#include <complex>
-#include <vector>
+#include "VerticesCreator.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
 //  онстанты
-const unsigned int SCR_WIDTH = 600;
+const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 int main()
@@ -54,78 +50,14 @@ int main()
     //    0.0f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  // нижн€€ права€ вершина
     //   -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  // нижн€€ лева€ вершина
     //    0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f   // верхн€€ вершина
-    //};
-    /*std::vector<float> vertices;
-    vertices.push_back(0.0f);
-    vertices.push_back(-0.5f);
-    vertices.push_back(0.0f);
-    vertices.push_back(1.0f);
-    vertices.push_back(0.0f);
-    vertices.push_back(0.0f);
+    //}
 
-    vertices.push_back(-0.5f);
-    vertices.push_back(-0.5f);
-    vertices.push_back(0.0f);
-    vertices.push_back(0.0f);
-    vertices.push_back(1.0f);
-    vertices.push_back(0.0f);
-
-    vertices.push_back(0.0f);
-    vertices.push_back(0.5f);
-    vertices.push_back(0.0f);
-    vertices.push_back(0.0f);
-    vertices.push_back(0.0f);
-    vertices.push_back(1.0f);*/
-
+    // «аполнение вершин
     std::vector<float> vertices;
-    for (int x = 0; x < SCR_WIDTH; x++)
-    //for (int x = SCR_WIDTH/2.; x < SCR_WIDTH/2.+30; x++)
-    {
-        for (int y = 0; y < SCR_HEIGHT; y++)
-        //for (int y = 0; y < 1; y++)
-        //for (int y = SCR_HEIGHT/2.; y < SCR_HEIGHT/2.+100; y++)
-        {
-            bool isColorSet = false;
-            vertices.push_back(float(-1.0f + 2.f*float(x)/((float)SCR_WIDTH)));
-            vertices.push_back(float(1.0f - 2.f * float(y) / ((float)SCR_HEIGHT)));
-            vertices.push_back(0.f);
-
-            std::complex<float> c0(float((float)x - (0.75 * float(SCR_WIDTH))) / ((float)SCR_WIDTH / 4.), float((float)y - ((float)SCR_HEIGHT / 4.)) / ((float)SCR_HEIGHT / 4.));
-            std::complex<float> c(0);
-            for (int i = 1; i < 1000; i++)
-            {
-                //float new_y = (y - (SCR_HEIGHT / 4)) / (SCR_HEIGHT / 4);
-                if (std::abs(c) > 2)
-                {
-                    //vertices.push_back(float(i));
-                    rgb out_color = rgb_conv(float(i));
-                    vertices.push_back(float(out_color.r));
-                    vertices.push_back(float(out_color.g));
-                    vertices.push_back(float(out_color.b));
-                    isColorSet = true;
-                    break;
-                }
-                c = c * c + c0;
-            }
-            if (!isColorSet)
-            {
-                //vertices.push_back(255.f);
-                vertices.push_back(0.f);
-                vertices.push_back(0.f);
-                vertices.push_back(0.f);
-            }
-        }
-    }
-    /*for (int i = 0; i < vertices.size();) 
-    {
-        std::cout << vertices[i++] << ' ';
-        std::cout << vertices[i++] << ' ';
-        std::cout << vertices[i++] << ' ';
-        std::cout << vertices[i++] << ' ';
-        std::cout << vertices[i++] << ' ';
-        std::cout << vertices[i++] << '\n';
-    }*/
-    std::cout << vertices.size() << '\n';
+    VerticesCreator v_creator;
+    v_creator.setType(vert_type::mandelbrot);
+    //v_creator.setType(vert_type::triangle);
+    v_creator.getVertices(SCR_WIDTH, SCR_HEIGHT, vertices);
 
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
@@ -165,7 +97,6 @@ int main()
         ourShader.use();
         glBindVertexArray(VAO);
         //glDrawArrays(GL_TRIANGLES, 0, 3);
-        //glDrawArrays(GL_POINTS, 0, 9000);
         glDrawArrays(GL_POINTS, 0, int(vertices.size()/6.));
 
         // glfw: обмен содержимым front- и back- буферов. ќтслеживание событий ввода\вывода (была ли нажата/отпущена кнопка, перемещен курсор мыши и т.п.)
