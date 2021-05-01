@@ -55,10 +55,12 @@ int main()
     // Заполнение вершин
     std::vector<float> vertices;
     VerticesCreator v_creator;
+    v_creator.setBorder(SCR_WIDTH, SCR_HEIGHT);
     //v_creator.setType(vert_type::mandelbrot);
-    v_creator.setType(vert_type::mandelbrot_wo_bg);
+    //v_creator.setType(vert_type::mandelbrot_wo_bg);
+    v_creator.setType(vert_type::mandelbrot_parallel);
     //v_creator.setType(vert_type::triangle);
-    v_creator.getVertices(SCR_WIDTH, SCR_HEIGHT, vertices);
+    v_creator.getVertices(vertices);
 
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
