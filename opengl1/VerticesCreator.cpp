@@ -74,25 +74,26 @@ void VerticesCreator::getVertices(std::vector<float>& vertices)
 	}
     case(vert_type::mandelbrot_parallel):
     {
+        std::mutex m_push;
         std::vector<std::vector<float>> thread_vertices;
 
         const int cpu_threads_count = std::thread::hardware_concurrency();
         std::vector<std::thread> thread_array;
-        float step_w = 1;// width / float(cpu_threads_count);
-        float step_h = 1;//height / float(cpu_threads_count);
+        float step_w = width / float(cpu_threads_count);
+        //float step_h = height / float(cpu_threads_count);
         float start_w = 0;
         float start_h = 0;
-        for (int i = 0; i < cpu_threads_count; i++, start_w += step_w, start_h += step_h) {
+        for (int i = 0; i < cpu_threads_count; i++, start_w += step_w) { //, start_h += step_h) {
             std::vector<float> i_thread_vert;
             thread_vertices.push_back(i_thread_vert);
             //std::thread th(&VerticesCreator::putVerticesInParallel, this, std::ref(vertices), std::ref(m_push), x, y);
-            /*if (i == cpu_threads_count - 1) {
-                std::thread th(&VerticesCreator::classicMandelbrot, this, std::ref(vertices), start_w, width, start_h, height, width, height);
+            if (i == cpu_threads_count - 1) {
+                std::thread th(&VerticesCreator::classicMandelbrot, this, std::ref(vertices), std::ref(m_push), start_w, width, start_h, height, width, height);
                 thread_array.push_back(std::move(th));
             }
-            else*/
+            else
             {
-                std::thread th(&VerticesCreator::classicMandelbrot, this, std::ref(thread_vertices.back()), start_w, start_w + step_w, start_h, start_h + step_h, width, height);
+                std::thread th(&VerticesCreator::classicMandelbrot, this, std::ref(vertices), std::ref(m_push), start_w, start_w + step_w, start_h, height, width, height);
                 thread_array.push_back(std::move(th));
             }
             
@@ -103,10 +104,10 @@ void VerticesCreator::getVertices(std::vector<float>& vertices)
                 thread_array[i].join();
             }
         }
-        for (int i = 0; i < cpu_threads_count; i++)
+        /*for (int i = 0; i < cpu_threads_count; i++)
         {
             vertices.insert(vertices.end(), thread_vertices[i].begin(), thread_vertices[i].end());
-        }
+        }*/
         //for (float x = 0; x < width; x++)
         //    // Эта настройка для обрезки мандельброта
         //    //for (int x = int(width*0.37); x < int(width*0.87); x++)
@@ -285,8 +286,9 @@ void VerticesCreator::putVerticesInParallel(std::vector<float>& vertices, std::m
     }
 }
 
-void VerticesCreator::classicMandelbrot(std::vector<float>& vertices, const float start_w, const float end_w, const float start_h, const float end_h, const float full_w, const float full_h)
+void VerticesCreator::classicMandelbrot(std::vector<float>& full_vertices, std::mutex& m_push, const float start_w, const float end_w, const float start_h, const float end_h, const float full_w, const float full_h)
 {
+    std::vector<float> vertices;
     for (float x = start_w; x < end_w; x++)
     {
         for (float y = start_h; y < end_h; y++)
@@ -320,4 +322,7 @@ void VerticesCreator::classicMandelbrot(std::vector<float>& vertices, const floa
         }
     }
     std::cout << vertices.size() << '\n';
+    m_push.lock();
+    full_vertices.insert(full_vertices.end(), vertices.begin(), vertices.end());
+    m_push.unlock();
 }
