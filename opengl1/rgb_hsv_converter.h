@@ -13,6 +13,19 @@ typedef struct {
     float v;       // a fraction between 0 and 1
 } hsv;
 
+inline bool operator== (const rgb& c1, const rgb& c2)
+{
+    return (int(c1.r) == int(c2.r) && 
+            int(c1.g) == int(c2.g) && 
+            int(c1.b) == int(c2.b));
+}
+
+inline bool operator!= (const rgb& c1, const rgb& c2)
+{
+    return !(c1 == c2);
+}
+
+
 static hsv   rgb2hsv(rgb in);
 static rgb   hsv2rgb(hsv in);
 
