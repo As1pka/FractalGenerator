@@ -88,12 +88,12 @@ void VerticesCreator::getVertices(std::vector<float>& vertices)
             thread_vertices.push_back(i_thread_vert);
             //std::thread th(&VerticesCreator::putVerticesInParallel, this, std::ref(vertices), std::ref(m_push), x, y);
             if (i == cpu_threads_count - 1) {
-                std::thread th(&VerticesCreator::classicMandelbrot, this, std::ref(vertices), std::ref(m_push), start_w, width, start_h, height, width, height);
+                std::thread th(&VerticesCreator::threadMandelbrot, this, std::ref(vertices), std::ref(m_push), start_w, width, start_h, height);
                 thread_array.push_back(std::move(th));
             }
             else
             {
-                std::thread th(&VerticesCreator::classicMandelbrot, this, std::ref(vertices), std::ref(m_push), start_w, start_w + step_w, start_h, height, width, height);
+                std::thread th(&VerticesCreator::threadMandelbrot, this, std::ref(vertices), std::ref(m_push), start_w, start_w + step_w, start_h, height);
                 thread_array.push_back(std::move(th));
             }
             
@@ -286,7 +286,7 @@ void VerticesCreator::putVerticesInParallel(std::vector<float>& vertices, std::m
     }
 }
 
-void VerticesCreator::classicMandelbrot(std::vector<float>& full_vertices, std::mutex& m_push, const float start_w, const float end_w, const float start_h, const float end_h, const float full_w, const float full_h)
+void VerticesCreator::threadMandelbrot(std::vector<float>& full_vertices, std::mutex& m_push, const float start_w, const float end_w, const float start_h, const float end_h)
 {
     std::vector<float> vertices;
     for (float x = start_w; x < end_w; x++)
@@ -294,11 +294,11 @@ void VerticesCreator::classicMandelbrot(std::vector<float>& full_vertices, std::
         for (float y = start_h; y < end_h; y++)
         {
             bool isColorSet = false;
-            vertices.push_back(-1.0f + 2.f * x / full_w);
-            vertices.push_back(1.0f - 2.f * y / full_h);
+            vertices.push_back(-1.0f + 2.f * x / width);
+            vertices.push_back(1.0f - 2.f * y / height);
             vertices.push_back(0.f);
 
-            std::complex<float> c0((x - 0.75f * full_w) / (full_w / 4.f), (y - full_h / 4.f) / (full_h / 4.f));
+            std::complex<float> c0((x - 0.75f * width) / (width / 4.f), (y - height / 4.f) / (height / 4.f));
             std::complex<float> c(0);
             for (int i = 1; i < 1000; i++)
             {
