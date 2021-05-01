@@ -6,6 +6,7 @@
 enum struct vert_type
 {
 	mandelbrot,
+	mandelbrot_wo_bg, //without background
 	triangle
 };
 
