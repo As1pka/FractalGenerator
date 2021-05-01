@@ -34,5 +34,6 @@ private:
 	float width, height;
 
 	void putVerticesInParallel(std::vector<float>& vertices, std::mutex & m_push, const float x, const float y);
+	void classicMandelbrot(std::vector<float>& vertices, const float start_w, const float end_w, const float start_h, const float end_h, const float full_w, const float full_h);
 };
 

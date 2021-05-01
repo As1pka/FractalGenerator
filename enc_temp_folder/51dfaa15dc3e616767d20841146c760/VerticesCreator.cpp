@@ -96,7 +96,7 @@ void VerticesCreator::getVertices(std::vector<float>& vertices)
                 thread_array.push_back(std::move(th));
             }
             
-
+            //thread_array[i] = std::thread(putVerticesInParallel(), ref(vertices), ref(m_push), x, y);
         }
         for (int i = 0; i < cpu_threads_count; i++) {
             if (thread_array[i].joinable()) {
