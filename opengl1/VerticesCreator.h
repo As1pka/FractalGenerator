@@ -11,6 +11,7 @@ enum struct vert_type
 	mandelbrot,
 	mandelbrot_wo_bg, //without background
 	mandelbrot_parallel,
+	mandelbrot_parallel_wo_bg,
 	triangle
 };
 
@@ -35,5 +36,6 @@ private:
 
 	void putVerticesInParallel(std::vector<float>& vertices, std::mutex & m_push, const float x, const float y);
 	void threadMandelbrot(std::vector<float>& full_vertices, std::mutex& m_push, const float start_w, const float end_w, const float start_h, const float end_h);
+	void threadMandelbrotWoBg(std::vector<float>& full_vertices, std::mutex& m_push, const float start_w, const float end_w, const float start_h, const float end_h);
 };
 

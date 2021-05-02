@@ -1,6 +1,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <ctime>
+#include <chrono>
+
 #include "shader_s.h"
 #include "VerticesCreator.h"
 
@@ -56,9 +59,12 @@ int main()
     std::vector<float> vertices;
     VerticesCreator v_creator;
     v_creator.setBorder(SCR_WIDTH, SCR_HEIGHT);
+    auto begin = std::chrono::steady_clock::now();   
+    
     //v_creator.setType(vert_type::mandelbrot);
     //v_creator.setType(vert_type::mandelbrot_wo_bg);
-    v_creator.setType(vert_type::mandelbrot_parallel);
+    //v_creator.setType(vert_type::mandelbrot_parallel);
+    v_creator.setType(vert_type::mandelbrot_parallel_wo_bg);
     //v_creator.setType(vert_type::triangle);
     v_creator.getVertices(vertices);
 
@@ -105,6 +111,12 @@ int main()
         // glfw: обмен содержимым front- и back- буферов. Отслеживание событий ввода\вывода (была ли нажата/отпущена кнопка, перемещен курсор мыши и т.п.)
         glfwSwapBuffers(window);
         glfwPollEvents();
+
+
+        auto end = std::chrono::steady_clock::now();
+        auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
+        std::cout << "The time: " << elapsed_ms.count() << " ms\n";
+        //return 0;
     }
 
     // Опционально: освобождаем все ресурсы, как только они выполнили свое предназначение
