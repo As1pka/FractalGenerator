@@ -61,8 +61,9 @@ int main()
     v_creator.setBorder(SCR_WIDTH, SCR_HEIGHT);
     auto begin = std::chrono::steady_clock::now();   
     
-    v_creator.setType(vert_type::levi);
-    v_creator.setLeviN(13);
+    //v_creator.setType(vert_type::levi2D);
+    v_creator.setType(vert_type::levi3D);
+    v_creator.setLeviVariables(13, 5);
 
     //v_creator.setType(vert_type::mandelbrot);
     //v_creator.setType(vert_type::mandelbrot_wo_bg);
@@ -150,7 +151,8 @@ int main()
         glBindVertexArray(VAO);
         //glDrawArrays(GL_TRIANGLES, 0, 3);
         //glDrawArrays(GL_POINTS, 0, int(vertices.size()/6.));
-        glDrawArrays(GL_LINES, 0, int(vertices.size() / 6.));
+        //glDrawArrays(GL_LINES, 0, int(vertices.size() / 6.));
+        glDrawArrays(GL_TRIANGLES, 0, int(vertices.size() / 6.));
 
         // glfw: обмен содержимым front- и back- буферов. Отслеживание событий ввода\вывода (была ли нажата/отпущена кнопка, перемещен курсор мыши и т.п.)
         glfwSwapBuffers(window);

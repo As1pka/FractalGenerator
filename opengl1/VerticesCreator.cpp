@@ -1,6 +1,9 @@
 #include "VerticesCreator.h"
 #include "color_expand.h"
 
+const double pi2 = std::acos(-1)/2.f;
+const double pi = std::acos(-1);
+
 void VerticesCreator::setType(vert_type new_type)
 {
 	this->curr_type = new_type;
@@ -12,9 +15,10 @@ void VerticesCreator::setBorder(float width, float height)
     this->height = height;
 }
 
-void VerticesCreator::setLeviN(const int n)
+void VerticesCreator::setLeviVariables(const int n, const int div)
 {
     this->levi_n = n;
+    this->levi_div = div;
 }
 
 void VerticesCreator::getVertices(std::vector<float>& vertices)
@@ -248,14 +252,25 @@ void VerticesCreator::getVertices(std::vector<float>& vertices)
         std::cout << vertices.size() << '\n';
         break;
     }
-    case(vert_type::levi):
+    case(vert_type::levi2D):
     {
         //0.4, 0.0, -0.4, 0.0, levi_n
         float xA = 0.4f;
         float yA = 0.f;
         float xB = -0.4f;
         float yB = 0.f;
-        nextLeviIter(vertices, xA, yA, xB, yB, levi_n);
+        nextLeviIter2D(vertices, xA, yA, xB, yB, levi_n);
+        break;
+    }
+    case(vert_type::levi3D):
+    {
+        //0.4, 0.0, -0.4, 0.0, levi_n
+        float xA = 0.4f;
+        float yA = 0.f;
+        float xB = -0.4f;
+        float yB = 0.f;
+        //std::vector<std::vector<float>> vertices_array;
+        nextLeviIter3D(vertices, xA, yA, xB, yB, levi_n);
         break;
     }
     case(vert_type::triangle):
@@ -503,7 +518,7 @@ void VerticesCreator::threadMandelbrotWoBgHalfScene(std::vector<float>& full_ver
     m_push.unlock();
 }
 
-void VerticesCreator::nextLeviIter(std::vector<float>& vertices, const float xA, const float yA, const float xB, const float yB, const int n)
+void VerticesCreator::nextLeviIter2D(std::vector<float>& vertices, const float xA, const float yA, const float xB, const float yB, const int n)
 {
     if (n == 0)
     {
@@ -511,6 +526,13 @@ void VerticesCreator::nextLeviIter(std::vector<float>& vertices, const float xA,
         vertices.push_back(xA);
         vertices.push_back(yA);
         vertices.push_back(0.f);
+        float zAB = 0.f;
+        float angle = pi / 2.f;
+        float cosa = std::cos(angle);
+        float sina = std::sin(angle);
+        /*vertices.push_back(xA*cosa + zAB* sina);
+        vertices.push_back(yA);
+        vertices.push_back(-xA* sina + zAB* cosa);*/
         vertices.push_back(255.f);
         vertices.push_back(0.f);
         vertices.push_back(0.f);
@@ -518,15 +540,135 @@ void VerticesCreator::nextLeviIter(std::vector<float>& vertices, const float xA,
         vertices.push_back(xB);
         vertices.push_back(yB);
         vertices.push_back(0.f);
+        /*vertices.push_back(xB * cosa + zAB * sina);
+        vertices.push_back(yB);
+        vertices.push_back(-xB * sina + zAB * cosa);*/
         vertices.push_back(255.f);
         vertices.push_back(0.f);
         vertices.push_back(0.f);
     }
     else 
     {
-        float xC = (xA + xB) / 2 + (yB - yA) / 2;
-        float yC = (yA + yB) / 2 - (xB - xA) / 2;
-        nextLeviIter(vertices, xA, yA, xC, yC, n - 1);
-        nextLeviIter(vertices, xC, yC, xB, yB, n - 1);
+        // usefull angles:
+        // 1.8f - большая красивая кривая с множеством углов
+        // 1.5f - мегатрон
+        const float corr = 2.f;
+
+        float xC = (xA + xB) / corr + (yB - yA) / corr;
+        float yC = (yA + yB) / corr - (xB - xA) / corr;
+        nextLeviIter2D(vertices, xA, yA, xC, yC, n - 1);
+        nextLeviIter2D(vertices, xC, yC, xB, yB, n - 1);
+    }
+}
+
+void VerticesCreator::nextLeviIter3D(std::vector<float>& vertices, const float xA, const float yA, const float xB, const float yB, const int n)
+{
+    if (n == 0)
+    {
+        // первая граница отрезка
+        /*vertices.push_back(xA);
+        vertices.push_back(yA);
+        vertices.push_back(0.f);*/
+        float zAB = 0.f;
+        float angle = pi / float(levi_div);
+        float cosa = std::cos(angle);
+        float sina = std::sin(angle);
+
+        float curr_xA = xA;
+        float curr_yA = yA;
+        float curr_zA = zAB;
+        float curr_xB = xB;
+        float curr_yB = yB;
+        float curr_zB = zAB;
+
+        for (int i = 0; i < levi_div; i++)
+        {
+            float xC = curr_xA * cosa + curr_zA * sina;
+            float yC = curr_yA;
+            float zC = -curr_xA * sina + curr_zA * cosa;
+
+            // Первый треугольник
+            vertices.push_back(curr_xB);
+            vertices.push_back(curr_yB);
+            vertices.push_back(curr_zB);
+            vertices.push_back(255.f);
+            vertices.push_back(0.f);
+            vertices.push_back(0.f);
+
+            vertices.push_back(xC);
+            vertices.push_back(yC);
+            vertices.push_back(zC);
+            vertices.push_back(255.f);
+            vertices.push_back(0.f);
+            vertices.push_back(0.f);
+
+            vertices.push_back(curr_xA);
+            vertices.push_back(curr_yA);
+            vertices.push_back(curr_zA);
+            vertices.push_back(255.f);
+            vertices.push_back(0.f);
+            vertices.push_back(0.f);
+
+            float xD = curr_xB * cosa + curr_zB * sina;
+            float yD = curr_yB;
+            float zD = -curr_xB * sina + curr_zB* cosa;
+
+            // Второй треугольник
+            vertices.push_back(curr_xB);
+            vertices.push_back(curr_yB);
+            vertices.push_back(curr_zB);
+            vertices.push_back(255.f);
+            vertices.push_back(0.f);
+            vertices.push_back(0.f);
+
+            vertices.push_back(xC);
+            vertices.push_back(yC);
+            vertices.push_back(zC);
+            vertices.push_back(255.f);
+            vertices.push_back(0.f);
+            vertices.push_back(0.f);
+
+            vertices.push_back(xD);
+            vertices.push_back(yD);
+            vertices.push_back(zD);
+            vertices.push_back(255.f);
+            vertices.push_back(0.f);
+            vertices.push_back(0.f);
+
+            curr_xA = xC;
+            curr_yA = yC;
+            curr_zA = zC;
+            curr_xB = xD;
+            curr_yB = yD;
+            curr_zB = zD;
+        }
+
+        //vertices.push_back(xA * cosa + zAB * sina);
+        //vertices.push_back(yA);
+        //vertices.push_back(-xA * sina + zAB * cosa);
+        //vertices.push_back(255.f);
+        //vertices.push_back(0.f);
+        //vertices.push_back(0.f);
+        //// вторая граница
+        //
+        //vertices.push_back(xB * cosa + zAB * sina);
+        //vertices.push_back(yB);
+        //vertices.push_back(-xB * sina + zAB * cosa);
+        //vertices.push_back(255.f);
+        //vertices.push_back(0.f);
+        //vertices.push_back(0.f);
+    }
+    else
+    {
+        // usefull angles:
+        // 1.8f - большая красивая кривая с множеством углов
+        // 1.5f - мегатрон
+        // 2.5f - более острый со сторон цветок
+        const float angle = 2.f;
+
+        float xC = (xA + xB) / angle + (yB - yA) / angle;
+        float yC = (yA + yB) / angle - (xB - xA) / angle;
+        nextLeviIter3D(vertices, xA, yA, xC, yC, n - 1);
+        nextLeviIter3D(vertices, xC, yC, xB, yB, n - 1);
     }
 }
