@@ -25,8 +25,8 @@ void VerticesCreator::getVertices(std::vector<float>& vertices)
             //for (float y = 0; y < height; y++)
             //for (int y = 0; y < 1; y++)
             // Эта настройка для обрезки мандельброта
-            //for (int y = 0; y < int(height*0.5); y++)
-            for (int y = 0; y < int(height * 0.25); y++)
+            for (int y = 0; y < int(height*0.5); y++)
+            //for (int y = 0; y < int(height * 0.25); y++)
             {
                 bool isColorSet = false;
                 vertices.push_back(-1.0f + 2.f * x / width);
