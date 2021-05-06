@@ -12,6 +12,11 @@ void VerticesCreator::setBorder(float width, float height)
     this->height = height;
 }
 
+void VerticesCreator::setLeviN(const int n)
+{
+    this->levi_n = n;
+}
+
 void VerticesCreator::getVertices(std::vector<float>& vertices)
 {
 	switch (curr_type)
@@ -241,6 +246,16 @@ void VerticesCreator::getVertices(std::vector<float>& vertices)
             }
         }
         std::cout << vertices.size() << '\n';
+        break;
+    }
+    case(vert_type::levi):
+    {
+        //0.4, 0.0, -0.4, 0.0, levi_n
+        float xA = 0.4f;
+        float yA = 0.f;
+        float xB = -0.4f;
+        float yB = 0.f;
+        nextLeviIter(vertices, xA, yA, xB, yB, levi_n);
         break;
     }
     case(vert_type::triangle):
@@ -486,4 +501,32 @@ void VerticesCreator::threadMandelbrotWoBgHalfScene(std::vector<float>& full_ver
     m_push.lock();
     full_vertices.insert(full_vertices.end(), vertices.begin(), vertices.end());
     m_push.unlock();
+}
+
+void VerticesCreator::nextLeviIter(std::vector<float>& vertices, const float xA, const float yA, const float xB, const float yB, const int n)
+{
+    if (n == 0)
+    {
+        // первая граница отрезка
+        vertices.push_back(xA);
+        vertices.push_back(yA);
+        vertices.push_back(0.f);
+        vertices.push_back(255.f);
+        vertices.push_back(0.f);
+        vertices.push_back(0.f);
+        // вторая граница
+        vertices.push_back(xB);
+        vertices.push_back(yB);
+        vertices.push_back(0.f);
+        vertices.push_back(255.f);
+        vertices.push_back(0.f);
+        vertices.push_back(0.f);
+    }
+    else 
+    {
+        float xC = (xA + xB) / 2 + (yB - yA) / 2;
+        float yC = (yA + yB) / 2 - (xB - xA) / 2;
+        nextLeviIter(vertices, xA, yA, xC, yC, n - 1);
+        nextLeviIter(vertices, xC, yC, xB, yB, n - 1);
+    }
 }
