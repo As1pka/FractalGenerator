@@ -61,13 +61,60 @@ int main()
     v_creator.setBorder(SCR_WIDTH, SCR_HEIGHT);
     auto begin = std::chrono::steady_clock::now();   
     
-    v_creator.setType(vert_type::mandelbrot);
+    //v_creator.setType(vert_type::levi2D);
+    v_creator.setType(vert_type::levi3D);
+    v_creator.setLeviVariables(9, 15);
+
+    //v_creator.setType(vert_type::mandelbrot);
     //v_creator.setType(vert_type::mandelbrot_wo_bg);
     //v_creator.setType(vert_type::mandelbrot_parallel);
     //v_creator.setType(vert_type::mandelbrot_parallel_wo_bg);
     //v_creator.setType(vert_type::mandelbrot_parallel_wo_bg_half_scene);
     //v_creator.setType(vert_type::triangle);
     v_creator.getVertices(vertices);
+
+    // Ёкспорт в .obj
+    std::ofstream fout("mndb.obj");
+    fout << "o obj_0\n";
+    for (int i = 0, f = 1; i < vertices.size(); i += 6, f++)
+    {
+        fout << "v ";
+        int j = 0;
+        /*fout << (vertices[i + j++]  + 1.f)*float(SCR_WIDTH)/2.f << " ";
+        fout << (1.f - vertices[i + j++])*float(SCR_HEIGHT)/2.f << " ";
+        fout << vertices[i + j++] + i << " ";*/
+        /*int j = 0;*/
+        for (j; j < 3; j++)
+        {
+            fout << vertices[i + j] << " ";
+        }
+        fout << "\n";
+        /*for (j; j < 6; j++)
+        {
+            fout << vertices[i + j]/255.f << " ";
+        }
+        fout << "\n";*/
+        //fout << "f " << f << " " << f << " " << f << " \n";
+    }
+    for (int i = 1; i <= vertices.size()/6.f; i += 3)
+    {
+        /*fout << "v ";
+        int j = 0;
+        for (j; j < 3; j++)
+        {
+            fout << vertices[i + j] << " ";
+        }*/
+        /*for (j; j < 6; j++)
+        {
+            fout << vertices[i + j]/255.f << " ";
+        }*/
+        //fout << "\n";
+        fout << "f ";
+        for (int k = 0; k < 3; k++)
+            fout << i + k << " ";
+        fout << "\n";
+    }
+    fout.close();
 
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
@@ -107,7 +154,9 @@ int main()
         ourShader.use();
         glBindVertexArray(VAO);
         //glDrawArrays(GL_TRIANGLES, 0, 3);
-        glDrawArrays(GL_POINTS, 0, int(vertices.size()/6.));
+        //glDrawArrays(GL_POINTS, 0, int(vertices.size()/6.));
+        //glDrawArrays(GL_LINES, 0, int(vertices.size() / 6.));
+        glDrawArrays(GL_TRIANGLES, 0, int(vertices.size() / 6.));
 
         // glfw: обмен содержимым front- и back- буферов. ќтслеживание событий ввода\вывода (была ли нажата/отпущена кнопка, перемещен курсор мыши и т.п.)
         glfwSwapBuffers(window);
