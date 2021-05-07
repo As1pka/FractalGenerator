@@ -64,22 +64,32 @@ int main()
     //v_creator.setType(vert_type::levi2D);
     //v_creator.setType(vert_type::levi3D);
     //v_creator.setType(vert_type::mandelbrot);
+    v_creator.setType(vert_type::mandelbrot3D);
     //v_creator.setType(vert_type::mandelbrot_wo_bg);
     //v_creator.setType(vert_type::mandelbrot_parallel);
     //v_creator.setType(vert_type::mandelbrot_parallel_wo_bg);
     //v_creator.setType(vert_type::mandelbrot_parallel_wo_bg_half_scene);
-    v_creator.setType(vert_type::triangle);
+    //v_creator.setType(vert_type::triangle);
     if (v_creator.getType() == vert_type::levi2D)
         v_creator.setLeviN(9);
-    if (v_creator.getType() == vert_type::levi3D)
+    else if (v_creator.getType() == vert_type::levi3D)
     {
         v_creator.setLeviN(9);
         v_creator.setLeviDiv(10);
     }
+    else if (v_creator.getType() == vert_type::mandelbrot3D)
+    {
+        v_creator.setMandN(2);
+        v_creator.setMandDiv(17);
+    }
+    else
+    {
+        v_creator.setMandN(2);
+    }
 
     v_creator.getVertices(vertices);
 
-    if (v_creator.getType() == vert_type::levi3D)
+    if (v_creator.getType() == vert_type::levi3D || v_creator.getType() == vert_type::mandelbrot3D)
     {
         // Ёкспорт в .obj
         std::ofstream fout("mndb.obj");
