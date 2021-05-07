@@ -33,7 +33,10 @@ public:
 
 	void setType(vert_type new_type);
 	void setBorder(float width, float height);
-	void setLeviVariables(const int n, const int div);
+	void setLeviN(const int n);
+	void setLeviDiv(const int div);
+
+	vert_type getType();
 	void getVertices(std::vector<float>& vertices);
 
 private:

@@ -15,10 +15,19 @@ void VerticesCreator::setBorder(float width, float height)
     this->height = height;
 }
 
-void VerticesCreator::setLeviVariables(const int n, const int div)
+void VerticesCreator::setLeviN(const int n)
 {
     this->levi_n = n;
+}
+
+void VerticesCreator::setLeviDiv(const int div)
+{
     this->levi_div = div;
+}
+
+vert_type VerticesCreator::getType()
+{
+    return this->curr_type;
 }
 
 void VerticesCreator::getVertices(std::vector<float>& vertices)
