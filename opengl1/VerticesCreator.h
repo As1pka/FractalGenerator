@@ -13,6 +13,7 @@ enum struct vert_type
 	mandelbrot_parallel,
 	mandelbrot_parallel_wo_bg,
 	mandelbrot_parallel_wo_bg_half_scene,
+	mandelbrot3D,
 	levi2D,
 	levi3D,
 	triangle
@@ -35,6 +36,8 @@ public:
 	void setBorder(float width, float height);
 	void setLeviN(const int n);
 	void setLeviDiv(const int div);
+	void setMandN(const int n);
+	void setMandDiv(const int div);
 
 	vert_type getType();
 	void getVertices(std::vector<float>& vertices);
@@ -42,12 +45,14 @@ public:
 private:
 	vert_type curr_type;
 	float width, height;
-	int levi_n, levi_div;
+	int levi_n, levi_div, mand_n, mand_div;
 
 	void putVerticesInParallel(std::vector<float>& vertices, std::mutex & m_push, const float x, const float y);
 	void threadMandelbrot(std::vector<float>& full_vertices, std::mutex& m_push, const float start_w, const float end_w, const float start_h, const float end_h);
 	void threadMandelbrotWoBg(std::vector<float>& full_vertices, std::mutex& m_push, const float start_w, const float end_w, const float start_h, const float end_h);
 	void threadMandelbrotWoBgHalfScene(std::vector<float>& full_vertices, std::mutex& m_push, const float start_w, const float end_w, const float start_h, const float end_h, const float border_h);
+	void threadMandelbrot3D(std::vector<float>& full_vertices, std::mutex& m_push, const float start_w, const float end_w, const float start_h, const float end_h, const float border_h);
+
 	void nextLeviIter2D(std::vector<float>& vertices, const float xA, const float yA, const float xB, const float yB, const int n);
 	void nextLeviIter3D(std::vector<float>& vertices, const float xA, const float yA, const float xB, const float yB, const int n);
 };

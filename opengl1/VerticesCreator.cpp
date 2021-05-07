@@ -1,7 +1,7 @@
 #include "VerticesCreator.h"
 #include "color_expand.h"
 
-const double pi2 = std::acos(-1)/2.f;
+const double pi2 = 2.f*std::acos(-1);
 const double pi = std::acos(-1);
 
 void VerticesCreator::setType(vert_type new_type)
@@ -25,6 +25,16 @@ void VerticesCreator::setLeviDiv(const int div)
     this->levi_div = div;
 }
 
+void VerticesCreator::setMandN(const int n)
+{
+    this->mand_n = n;
+}
+
+void VerticesCreator::setMandDiv(const int div)
+{
+    this->mand_div = div;
+}
+
 vert_type VerticesCreator::getType()
 {
     return this->curr_type;
@@ -37,12 +47,12 @@ void VerticesCreator::getVertices(std::vector<float>& vertices)
 	case(vert_type::mandelbrot):
 	{
         //for (float x = 0; x < width; x++)
-        // Эта настройка для обрезки мандельброта
+        // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         for (int x = int(width*0.37); x < int(width*0.87); x++)
         {
             //for (float y = 0; y < height; y++)
             //for (int y = 0; y < 1; y++)
-            // Эта настройка для обрезки мандельброта
+            // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             for (int y = 0; y < int(height*0.5); y++)
             //for (int y = 0; y < int(height * 0.25); y++)
             {
@@ -58,7 +68,7 @@ void VerticesCreator::getVertices(std::vector<float>& vertices)
                 for (int i = 1; i < 1000; i++)
                 {
                     //float new_y = (y - (height / 4)) / (height / 4);
-                    if (std::abs(c) > 2)
+                    if (std::abs(c) > mand_n)
                     {
                         //vertices.push_back(float(i));
                         rgb out_color = rgb_conv(float(i));
@@ -203,17 +213,58 @@ void VerticesCreator::getVertices(std::vector<float>& vertices)
         std::cout << vertices.size() << '\n';
         break;
     }
+    case(vert_type::mandelbrot3D):
+    {
+        std::mutex m_push;
+        std::vector<std::vector<float>> thread_vertices;
+
+        /*const */int cpu_threads_count = std::thread::hardware_concurrency();
+        std::vector<std::thread> thread_array;
+        float end_w = width * 0.87f;
+        //float end_h = height * 0.5f;
+        float end_h = height * 0.25f;
+
+        //float step_w = end_w / float(cpu_threads_count);
+        float step_h = end_h / float(cpu_threads_count);
+        //for (int x = int(width * 0.37); x < int(width * 0.87); x++)
+        float start_w = width * 0.37f;
+        float start_h = 0;
+
+        cpu_threads_count = 1;
+        for (int i = 0; i < cpu_threads_count; i++, start_h += step_h) { //start_w += step_w) { //, 
+            std::vector<float> i_thread_vert;
+            thread_vertices.push_back(i_thread_vert);
+            //std::thread th(&VerticesCreator::putVerticesInParallel, this, std::ref(vertices), std::ref(m_push), x, y);
+            if (i == cpu_threads_count - 1) {
+                std::thread th(&VerticesCreator::threadMandelbrot3D, this, std::ref(vertices), std::ref(m_push), start_w, end_w, start_h, end_h, end_h);
+                thread_array.push_back(std::move(th));
+            }
+            else
+            {
+                std::thread th(&VerticesCreator::threadMandelbrot3D, this, std::ref(vertices), std::ref(m_push), start_w, end_w, start_h, start_h + step_h, end_h);
+                //std::thread th(&VerticesCreator::threadMandelbrotWoBg, this, std::ref(vertices), std::ref(m_push), start_w, start_w + step_w, start_h, end_h);
+                thread_array.push_back(std::move(th));
+            }
+        }
+        for (int i = 0; i < cpu_threads_count; i++) {
+            if (thread_array[i].joinable()) {
+                thread_array[i].join();
+            }
+        }
+        std::cout << vertices.size() << '\n';
+        break;
+    }
     case(vert_type::mandelbrot_wo_bg):
     {
         rgb bg_color;
         bool bg_color_set = false;
         for (float x = 0; x < width; x++)
-        // Эта настройка для обрезки мандельброта
+        // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         //for (int x = int(width*0.37); x < int(width*0.87); x++)
         {
             for (float y = 0; y < height; y++)
                 //for (int y = 0; y < 1; y++)
-            // Эта настройка для обрезки мандельброта
+            // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             //for (int y = 0; y < int(height*0.5); y++)
             {
                 bool isColorSet = false;
@@ -222,16 +273,16 @@ void VerticesCreator::getVertices(std::vector<float>& vertices)
                 std::complex<float> c(0);
                 for (int i = 1; i < 1000; i++)
                 {
-                    if (std::abs(c) > 2)
+                    if (std::abs(c) > mand_n)
                     {
                         rgb out_color = rgb_conv(float(i));
-                        // Первый элемент заранее известно что имеет цвет фона
+                        // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
                         if (!bg_color_set)
                         {
                             bg_color = out_color;
                             bg_color_set = true;
                         }
-                        // Если текущий цвет отличается от цвета фона, то добавляем вершину
+                        // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                         //else if (bg_color != out_color)
                         else if (!isCloseColor(bg_color, out_color, 0.2))
                         {
@@ -319,7 +370,7 @@ void VerticesCreator::putVerticesInParallel(std::vector<float>& vertices, std::m
     std::complex<float> c(0);
     for (int i = 1; i < 1000; i++)
     {
-        if (std::abs(c) > 2)
+        if (std::abs(c) > mand_n)
         {
             rgb out_color = rgb_conv(float(i));
             m_push.lock();
@@ -364,7 +415,7 @@ void VerticesCreator::threadMandelbrot(std::vector<float>& full_vertices, std::m
             std::complex<float> c(0);
             for (int i = 1; i < 1000; i++)
             {
-                if (std::abs(c) > 2)
+                if (std::abs(c) > mand_n)
                 {
                     rgb out_color = rgb_conv(float(i));
                     vertices.push_back(float(out_color.r));
@@ -406,10 +457,10 @@ void VerticesCreator::threadMandelbrotWoBg(std::vector<float>& full_vertices, st
             std::complex<float> c(0);
             for (int i = 1; i < 1000; i++)
             {
-                if (std::abs(c) > 2)
+                if (std::abs(c) > mand_n)
                 {
                     rgb out_color = rgb_conv(float(i));
-                    // Первый элемент заранее известно что имеет цвет фона
+                    // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
                     if (!bg_color_set)
                     {
                         m_push.lock();
@@ -417,7 +468,7 @@ void VerticesCreator::threadMandelbrotWoBg(std::vector<float>& full_vertices, st
                         bg_color_set = true;
                         m_push.unlock();
                     }
-                    // Если текущий цвет отличается от цвета фона, то добавляем вершину
+                    // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                     //else if (bg_color != out_color)
                     else if (!isCloseColor(bg_color, out_color, 0.2))
                     {
@@ -467,10 +518,10 @@ void VerticesCreator::threadMandelbrotWoBgHalfScene(std::vector<float>& full_ver
             std::complex<float> c(0);
             for (int i = 1; i < 1000; i++)
             {
-                if (std::abs(c) > 2)
+                if (std::abs(c) > mand_n)
                 {
                     rgb out_color = rgb_conv(float(i));
-                    // Первый элемент заранее известно что имеет цвет фона
+                    // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
                     if (!bg_color_set)
                     {
                         m_push.lock();
@@ -478,18 +529,18 @@ void VerticesCreator::threadMandelbrotWoBgHalfScene(std::vector<float>& full_ver
                         bg_color_set = true;
                         m_push.unlock();
                     }
-                    // Если текущий цвет отличается от цвета фона, то добавляем вершину
+                    // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                     //else if (bg_color != out_color)
                     else if (!isCloseColor(bg_color, out_color, 0.2))
                     {
-                        // Текущая точка
+                        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
                         vertices.push_back(-1.0f + 2.f * x / width);
                         vertices.push_back(1.0f - 2.f * y / height);
                         vertices.push_back(0.f);
                         vertices.push_back(float(out_color.r));
                         vertices.push_back(float(out_color.g));
                         vertices.push_back(float(out_color.b));
-                        // Зеркальная точка
+                        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
                         vertices.push_back(-1.0f + 2.f * x / width);
                         vertices.push_back(1.0f - 2.f * (border_h + (border_h - y)) / height);
                         vertices.push_back(0.f);
@@ -504,14 +555,14 @@ void VerticesCreator::threadMandelbrotWoBgHalfScene(std::vector<float>& full_ver
             }
             if (!isColorSet)
             {
-                // Текущая точка
+                // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
                 vertices.push_back(-1.0f + 2.f * x / width);
                 vertices.push_back(1.0f - 2.f * y / height);
                 vertices.push_back(0.f);
                 vertices.push_back(0.f);
                 vertices.push_back(0.f);
                 vertices.push_back(0.f);
-                // Зеркальная точка
+                // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
                 vertices.push_back(-1.0f + 2.f * x / width);
                 vertices.push_back(1.0f - 2.f * (border_h + (border_h - y)) / height);
                 vertices.push_back(0.f);
@@ -527,11 +578,159 @@ void VerticesCreator::threadMandelbrotWoBgHalfScene(std::vector<float>& full_ver
     m_push.unlock();
 }
 
+void VerticesCreator::threadMandelbrot3D(std::vector<float>& full_vertices, std::mutex& m_push, const float start_w, const float end_w, const float start_h, const float end_h, const float border_h)
+{
+    static rgb bg_color;
+    static bool bg_color_set = false;
+    std::vector<float> vertices;
+    bool isSecond = false;
+    m_push.lock();
+    static float angle = pi2 / float(mand_div);
+    static float cosa = std::cos(angle);
+    static float sina = std::sin(angle);
+    m_push.unlock();
+
+    float curr_zAB = 0.f;
+
+    float curr_xA;
+    float curr_yA;
+    float curr_zA;
+    float curr_xB;
+    float curr_yB;
+    float curr_zB;
+
+    //for (float x = start_w; x < end_w; x++)
+    for (float y = start_h; y < end_h; y++)
+    {
+        for (float x = start_w; x < end_w; x++)
+        //for (float y = start_h; y < end_h; y++)
+        {
+            bool isColorSet = false;
+
+            std::complex<float> c0((x - 0.75f * width) / (width / 4.f), (y - height / 4.f) / (height / 4.f));
+            std::complex<float> c(0);
+            for (int i = 1; i < 1000; i++)
+            {
+                if (std::abs(c) > mand_n)
+                {
+                    rgb out_color = rgb_conv(float(i));
+                    // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+                    if (!bg_color_set)
+                    {
+                        m_push.lock();
+                        bg_color = out_color;
+                        bg_color_set = true;
+                        m_push.unlock();
+                    }
+                    // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+                    //else if (bg_color != out_color)
+                    else if (!isCloseColor(bg_color, out_color, 0.2))
+                    {
+                        if (!isSecond)
+                        {
+                            curr_xA = -1.0f + 2.f * x / width;
+                            curr_yA = 1.0f - 2.f * (border_h + y) / height;
+                            curr_zA = curr_zAB;
+                            isSecond = true;
+
+                            /*curr_xB = -1.0f + 2.f * x / width;;
+                            curr_yB = 1.0f - 2.f * (border_h + y) / height;;
+                            curr_zB = curr_zAB + 1;*/
+                        }
+                        else 
+                        {
+                            curr_xB = -1.0f + 2.f * x / width;;
+                            curr_yB = 1.0f - 2.f * (border_h + y) / height;;
+                            curr_zB = curr_zAB;
+                            isSecond = false;
+
+                            //x--;
+                        }
+
+                        for (int i = 0; i < mand_div; i++)
+                        {
+                            float xC = curr_xA;
+                            float yC = curr_yA * cosa + curr_zA * -sina;
+                            float zC = curr_yA * sina + curr_zA * cosa;
+
+                            // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+                            vertices.push_back(curr_xB);
+                            vertices.push_back(curr_yB);
+                            vertices.push_back(curr_zB);
+                            vertices.push_back(255.f);
+                            vertices.push_back(0.f);
+                            vertices.push_back(0.f);
+
+                            vertices.push_back(xC);
+                            vertices.push_back(yC);
+                            vertices.push_back(zC);
+                            vertices.push_back(255.f);
+                            vertices.push_back(0.f);
+                            vertices.push_back(0.f);
+
+                            vertices.push_back(curr_xA);
+                            vertices.push_back(curr_yA);
+                            vertices.push_back(curr_zA);
+                            vertices.push_back(255.f);
+                            vertices.push_back(0.f);
+                            vertices.push_back(0.f);
+
+                            float xD = curr_xB;
+                            float yD = curr_yB * cosa + curr_zB * -sina;
+                            float zD = curr_yB * sina + curr_zB * cosa;
+
+                            // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+                            vertices.push_back(curr_xB);
+                            vertices.push_back(curr_yB);
+                            vertices.push_back(curr_zB);
+                            vertices.push_back(255.f);
+                            vertices.push_back(0.f);
+                            vertices.push_back(0.f);
+
+                            vertices.push_back(xC);
+                            vertices.push_back(yC);
+                            vertices.push_back(zC);
+                            vertices.push_back(255.f);
+                            vertices.push_back(0.f);
+                            vertices.push_back(0.f);
+
+                            vertices.push_back(xD);
+                            vertices.push_back(yD);
+                            vertices.push_back(zD);
+                            vertices.push_back(255.f);
+                            vertices.push_back(0.f);
+                            vertices.push_back(0.f);
+
+                            curr_xA = xC;
+                            curr_yA = yC;
+                            curr_zA = zC;
+                            curr_xB = xD;
+                            curr_yB = yD;
+                            curr_zB = zD;
+                        }
+                    }
+                    curr_xA = -1.0f + 2.f * x / width;;
+                    curr_yA = 1.0f - 2.f * (border_h + y) / height;;
+                    curr_zA = curr_zAB;
+                    isSecond = true;
+                    isColorSet = true;
+                    break;
+                }
+                c = c * c + c0;
+            }
+        }
+    }
+    std::cout << vertices.size() << '\n';
+    m_push.lock();
+    full_vertices.insert(full_vertices.end(), vertices.begin(), vertices.end());
+    m_push.unlock();
+}
+
 void VerticesCreator::nextLeviIter2D(std::vector<float>& vertices, const float xA, const float yA, const float xB, const float yB, const int n)
 {
     if (n == 0)
     {
-        // первая граница отрезка
+        // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         vertices.push_back(xA);
         vertices.push_back(yA);
         vertices.push_back(0.f);
@@ -545,7 +744,7 @@ void VerticesCreator::nextLeviIter2D(std::vector<float>& vertices, const float x
         vertices.push_back(255.f);
         vertices.push_back(0.f);
         vertices.push_back(0.f);
-        // вторая граница
+        // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         vertices.push_back(xB);
         vertices.push_back(yB);
         vertices.push_back(0.f);
@@ -559,8 +758,8 @@ void VerticesCreator::nextLeviIter2D(std::vector<float>& vertices, const float x
     else 
     {
         // usefull angles:
-        // 1.8f - большая красивая кривая с множеством углов
-        // 1.5f - мегатрон
+        // 1.8f - пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+        // 1.5f - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         const float corr = 2.f;
 
         float xC = (xA + xB) / corr + (yB - yA) / corr;
@@ -574,7 +773,7 @@ void VerticesCreator::nextLeviIter3D(std::vector<float>& vertices, const float x
 {
     if (n == 0)
     {
-        // первая граница отрезка
+        // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         /*vertices.push_back(xA);
         vertices.push_back(yA);
         vertices.push_back(0.f);*/
@@ -596,7 +795,7 @@ void VerticesCreator::nextLeviIter3D(std::vector<float>& vertices, const float x
             float yC = curr_yA;
             float zC = -curr_xA * sina + curr_zA * cosa;
 
-            // Первый треугольник
+            // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             vertices.push_back(curr_xB);
             vertices.push_back(curr_yB);
             vertices.push_back(curr_zB);
@@ -622,7 +821,7 @@ void VerticesCreator::nextLeviIter3D(std::vector<float>& vertices, const float x
             float yD = curr_yB;
             float zD = -curr_xB * sina + curr_zB* cosa;
 
-            // Второй треугольник
+            // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             vertices.push_back(curr_xB);
             vertices.push_back(curr_yB);
             vertices.push_back(curr_zB);
@@ -658,7 +857,7 @@ void VerticesCreator::nextLeviIter3D(std::vector<float>& vertices, const float x
         //vertices.push_back(255.f);
         //vertices.push_back(0.f);
         //vertices.push_back(0.f);
-        //// вторая граница
+        //// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         //
         //vertices.push_back(xB * cosa + zAB * sina);
         //vertices.push_back(yB);
@@ -670,9 +869,9 @@ void VerticesCreator::nextLeviIter3D(std::vector<float>& vertices, const float x
     else
     {
         // usefull angles:
-        // 1.8f - большая красивая кривая с множеством углов
-        // 1.5f - мегатрон
-        // 2.5f - более острый со сторон цветок
+        // 1.8f - пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+        // 1.5f - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+        // 2.5f - пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         const float angle = 2.f;
 
         float xC = (xA + xB) / angle + (yB - yA) / angle;
